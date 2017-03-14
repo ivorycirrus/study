@@ -125,6 +125,62 @@ REST_ROUTER.prototype.handleRoutes = function(router,connectionPool) {
             });
         });
     });
+
+    router.delete("/todo",function(req,res){
+        if(!req.body.todos || req.body.todos.length <= 0) {
+            res.json({"Error" : true, "Message" : "Error no data to delete."});
+            return;
+        }
+        
+        connectionPool.getConnection(function(connErr,connection){
+            if(connErr) {
+                res.json({"Error" : true, "Message" : "Error MySQL connection"});
+                if(connection) connection.release();
+                return;
+            }
+
+            connection.beginTransaction(function(transactionErr) {
+                if (transactionErr) {
+                    res.json({"Error" : true, "Message" : "Error MySQL connection"});
+                    if(connection) connection.release();
+                    return;
+                }
+
+                var query = "DELETE from ?? WHERE ??=?";
+                var processQuery = function(processData){
+                    var table = ["todo","todo_id",processData.pop().todo_id];
+                    query = mysql.format(query,table);
+
+                    connection.query(query,function(err,rows){
+                        if(err) {
+                            connection.rollback(function () {
+                                res.json({"Error" : true, "Message" : "Error executing MySQL query"});
+                                if(connection) connection.release();
+                            });
+                        } else {
+                            if(processData.length > 0) {
+                                processQuery();
+                            } else {
+                                connection.commit(function (err) {
+                                    if (err) {
+                                        connection.rollback(function () {
+                                            res.json({"Error" : true, "Message" : "Error executing MySQL query"});
+                                            if(connection) connection.release();
+                                        });
+                                    } else {
+                                        res.json({"Error" : false, "Message" : "Deleted todo "});
+                                        if(connection) connection.release();
+                                    }
+                                });
+                            }
+                        }
+                    });
+                };
+
+                processQuery(req.body.todos);
+            });
+        });
+    });
 }
 
 module.exports = REST_ROUTER;
