@@ -12,12 +12,16 @@ function REST(){
 REST.prototype.connectMysql = function() {
     var self = this;
     var pool      =    mysql.createPool({
-        connectionLimit : 100,
+        // host info
         host     : 'localhost',
         user     : 'root',
         password : '1234',
         database : 'rest',
-        debug    :  false
+        debug    :  false,
+
+        //connection pull option
+        connectionLimit : 100,
+        waitForConnections:true
     });
     pool.getConnection(function(err,connection){
         if(connection) connection.release();
