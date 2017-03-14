@@ -3,6 +3,11 @@
 ## About
 Todo web application based on node.js and angular.js.
 
+## Tested Environment
+* lubuntu 16.10
+* node.js 6.10.0
+* mysql 5.7.17
+
 ## Setup
 1. node module dependencies
 ```
