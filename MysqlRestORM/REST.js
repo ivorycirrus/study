@@ -1,4 +1,5 @@
 var mysql   = require("mysql");
+var Sequelize = require("sequelize");
 
 function REST_ROUTER(router,objSequlize) {
     var self = this;
@@ -8,23 +9,37 @@ function REST_ROUTER(router,objSequlize) {
 REST_ROUTER.prototype.handleRoutes = function(router,objSequlize) {
     var self = this;
     var Todo = objSequlize.define('todo', {
-      todo_id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true 
-      },
-      todo: {
-        type: Sequelize.TEXT,
-        allowNull: true
-      },
-      status : {
-        type : Sequelize.STRING,
-        allowNull: true
-      },
-      due : {
-        type: Sequelize.DATE,
-        allowNull: true
-      }
+        todo_id: {
+            type: Sequelize.INTEGER,
+            primaryKey: true,
+            autoIncrement: true 
+        },
+        todo: {
+            type: Sequelize.TEXT,
+            allowNull: true
+        },
+        status : {
+            type : Sequelize.STRING,
+            allowNull: true
+        },
+        due : {
+            type: Sequelize.DATE,
+            allowNull: true
+        }
+    }, {
+        // don't add the timestamp attributes (updatedAt, createdAt)
+        timestamps: false,
+        // don't add the paranoid attribute (deletedAt). it'll working with timestamp.
+        paranoid : false,
+        // don't use camelcase for automatically added attributes but underscore style
+        // so updatedAt will be updated_at
+        underscored: true,
+        // disable the modification of tablenames; By default, sequelize will automatically
+        // transform all passed model names (first parameter of define) into plural.
+        // if you don't want that, set the following
+        freezeTableName: true,
+        // define the table's name
+        tableName: 'todo'
     });
 
     router.get("/",function(req,res){
@@ -32,7 +47,9 @@ REST_ROUTER.prototype.handleRoutes = function(router,objSequlize) {
     });
 
     router.get("/todo",function(req,res){
-        Todo.findAll()
+        Todo.findAll({
+                attributes : ['todo_id', 'todo', 'status', 'due']
+            })
             .then(function(todos){
                 res.json({"Error" : false, "Message" : "Success", "Todo" : todos});
             })

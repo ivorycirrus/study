@@ -1,4 +1,5 @@
 var express = require("express");
+var sequelize = require("sequelize");
 var mysql   = require("mysql");
 var bodyParser  = require("body-parser");
 var rest = require("./REST.js");
@@ -13,36 +14,41 @@ REST.prototype.connectMysql = function() {
     var self = this;
 
     // Config squelize
-    var sequelize = new Sequelize('rest', 'root', '1234', {
-      host: 'localhost',
-      dialect: 'mysql', //|'sqlite'|'postgres'|'mssql',
+    var sqlObj = new sequelize(
+      'rest', // database name
+      'root', // user
+      '1234', // password
+      {
+        host: 'localhost', // database host address
+        dialect: 'mysql',  // kind of database
 
-      pool: {
-        max: 5,
-        min: 0,
-        idle: 10000
-      },
-
-      // SQLite only
-      //storage: 'path/to/database.sqlite'
-    });
+        pool: { // connection pool settings
+          max: 5,
+          min: 0,
+          idle: 10000
+        }
+      });
 
     // Check connection
-    sequelize.authenticate().then(function() { 
-      self.configureExpress(sequelize);
-    }).catch(function(err){
-      self.stop(err);
-    }).done();
+    sqlObj.authenticate()
+      .then(function(err) {
+        console.log('Connection has been established successfully.');
+        self.configureExpress(sqlObj);
+      })
+      .catch(function (err) {
+        console.log('Unable to connect to the database:', err);
+        self.stop(err);
+      });
 }
 
-REST.prototype.configureExpress = function(objSequlize) {
+REST.prototype.configureExpress = function(sqlObj) {
       var self = this;
       app.use(bodyParser.urlencoded({ extended: true }));
       app.use(bodyParser.json());
       app.use(express.static('public'));
       var router = express.Router();
       app.use('/api', router);
-      var rest_router = new rest(router,objSequlize);
+      var rest_router = new rest(router,sqlObj);
       self.startServer();
 }
 
