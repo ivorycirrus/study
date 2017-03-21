@@ -11,37 +11,38 @@ function REST(){
 
 REST.prototype.connectMysql = function() {
     var self = this;
-    var pool      =    mysql.createPool({
-        // host info
-        host     : 'localhost',
-        user     : 'root',
-        password : '1234',
-        database : 'rest',
-        debug    :  false,
 
-        //connection pull option
-        connectionLimit : 100,
-        waitForConnections:true
-    });
-    pool.getConnection(function(err,connection){
-        if(connection) connection.release();
+    // Config squelize
+    var sequelize = new Sequelize('rest', 'root', '1234', {
+      host: 'localhost',
+      dialect: 'mysql', //|'sqlite'|'postgres'|'mssql',
 
-        if(err) {
-          self.stop(err);
-        } else {
-          self.configureExpress(pool);
-        }
+      pool: {
+        max: 5,
+        min: 0,
+        idle: 10000
+      },
+
+      // SQLite only
+      //storage: 'path/to/database.sqlite'
     });
+
+    // Check connection
+    sequelize.authenticate().then(function() { 
+      self.configureExpress(sequelize);
+    }).catch(function(err){
+      self.stop(err);
+    }).done();
 }
 
-REST.prototype.configureExpress = function(connectionPool) {
+REST.prototype.configureExpress = function(objSequlize) {
       var self = this;
       app.use(bodyParser.urlencoded({ extended: true }));
       app.use(bodyParser.json());
       app.use(express.static('public'));
       var router = express.Router();
       app.use('/api', router);
-      var rest_router = new rest(router,connectionPool);
+      var rest_router = new rest(router,objSequlize);
       self.startServer();
 }
 
