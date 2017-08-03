@@ -1,6 +1,6 @@
 ## 딥러닝 학습 요점 정리
 * '밑바닥부터 시작하는 딥러닝, 한빛미디어' 학습 내용 정리
-* 샘플코드 : [deep-learning-from-scratch]{https://github.com/WegraLee/deep-learning-from-scratch}
+* 샘플코드 : [deep-learning-from-scratch](https://github.com/WegraLee/deep-learning-from-scratch)
 
 ### 1. 작성 문서 조회
 * dist 디렉토리의 pdf 파일을 조회
