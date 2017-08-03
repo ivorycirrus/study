@@ -3,7 +3,7 @@
 * 샘플코드 : [deep-learning-from-scratch](https://github.com/WegraLee/deep-learning-from-scratch)
 
 ### 1. 작성 문서 조회
-* dist 디렉토리의 pdf 파일을 조회
+* [dist](./dist) 디렉토리의 pdf 파일을 조회
 
 ### 2. 문서 수정
 * Girhub 호완 마크다운(GFM, GitHub Flavored Markdown) 기준으로 작성됨 
